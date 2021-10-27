@@ -10,9 +10,14 @@ public class playerScript : MonoBehaviour
     private Transform _transform;
     public LayerMask _groundLayer;
     public Animator _animator;
-    public bool isLookingRight = false;
+    public bool isLookingLeft = false;
     private SpriteRenderer _spriteRenderer;
+    public GameObject _shootingObject;
+    public static bool isDead = false;
 
+    private Queue<GameObject> bullets = new Queue<GameObject>();
+
+    public float bulletSpeed = 10f;
     private void Start() {
         _ridgidBody = GetComponent<Rigidbody2D>();
         _transform = this.transform;
@@ -25,14 +30,30 @@ public class playerScript : MonoBehaviour
 
 
         if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)){
-            isLookingRight = true;
+            isLookingLeft = true;
         }
 
         if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
-            isLookingRight = false;
+            isLookingLeft = false;
         }
 
-        _spriteRenderer.flipX = isLookingRight;
+        if(Input.GetKeyDown(KeyCode.Space)){
+            GameObject gameObject = Instantiate(_shootingObject, new Vector2(this.transform.position.x, this.transform.position.y), Quaternion.identity);
+            Rigidbody2D rb = gameObject.GetComponent<Rigidbody2D>();
+            if(isLookingLeft){
+                rb.AddForce(new Vector2(-bulletSpeed, 0));
+            }else{
+                rb.AddForce(new Vector2(bulletSpeed, 0));
+            }
+            bullets.Enqueue(gameObject);
+        }
+
+        if(bullets.Count > 15){
+            GameObject bullet = bullets.Dequeue();
+            Destroy(bullet);
+        }
+
+        _spriteRenderer.flipX = isLookingLeft;
 
         transform.position += new Vector3(movement, 0 ,0) * Time.deltaTime * movementSpeed;
 
@@ -41,16 +62,16 @@ public class playerScript : MonoBehaviour
         }
         
 
-        Debug.Log(isGrounded());
-
         _animator.SetBool("isJumping", !isGrounded());
         _animator.SetFloat("isMoving", Mathf.Abs(movement));
        
     }
 
     private bool isGrounded(){
-        RaycastHit2D hit = Physics2D.Raycast(_transform.position, Vector2.down, 1.1f, _groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(_transform.position, Vector2.down, 1.02f, _groundLayer);
 
         return hit;
     }
+
+    
 }
