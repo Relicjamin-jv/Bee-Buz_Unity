@@ -30,6 +30,7 @@ public class Enemy : MonoBehaviour
         if(isDead){
             _animator.SetBool("isDead", isDead);
             Invoke("gameObjectDeath", 2f);
+            _ridgidBody.velocity = Vector2.zero;
         }
     }
 
@@ -38,8 +39,13 @@ public class Enemy : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        Destroy(other.gameObject);
-        isDead = true;
+        if(other.gameObject.tag != "Enemy" && isDead == false){
+            isDead = true;
+            GameManagerScript.playerScore++;
+            if(other.gameObject.tag == "Player"){
+                playerScript.isDead = true;
+            }
+        }
     }
 
 }
