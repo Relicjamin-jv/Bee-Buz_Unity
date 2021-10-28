@@ -46,6 +46,10 @@ public class Enemy : MonoBehaviour
                 playerScript.isDead = true;
             }
         }
+
+        if(other.gameObject.tag == "wall"){
+            Destroy(this.gameObject);
+        }
     }
 
 }
